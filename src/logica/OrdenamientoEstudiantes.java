@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 public class OrdenamientoEstudiantes {
     public static void ordenamientoEstudiantes() {
-
         Scanner sc = new Scanner(System.in);
 
         System.out.println("Ingrese la cantidad de estudiantes: ");
@@ -15,58 +14,62 @@ public class OrdenamientoEstudiantes {
         System.out.println("Seleccione el metodo de ordenamiento (desc/asc): ");
         String ordenamiento = sc.next();
         sc.close();
-        boolean orden = ordenamiento.equalsIgnoreCase("asc");
+
+        boolean ascendente = ordenamiento.equalsIgnoreCase("asc");
         List<Estudiante> lista = Utilidades.generarEstudiantes(n);
 
         long inicio = System.nanoTime();
-        List<Estudiante>listaOrdenada = ordenarMergeSort(lista,orden);
+        List<Estudiante>listaOrdenada = ordenarMergeSort(lista, ascendente);
         long tiempo = System.nanoTime() - inicio;
 
         System.out.println("Tiempo: " + tiempo + " ns");
-        for(Estudiante estudiante : listaOrdenada){
+        for(Estudiante estudiante : listaOrdenada) {
             System.out.println(estudiante);
         }
     }
 
-    private static List<Estudiante> ordenarMergeSort(List<Estudiante> listaSinOrdenar, boolean ascendente) {
-        if (listaSinOrdenar.size() <= 1) {
-            return new ArrayList<>(listaSinOrdenar);
+    private static List<Estudiante> ordenarMergeSort(List<Estudiante> lista, boolean ascendente) {
+        if (lista.size() <= 1) {
+            return new ArrayList<>(lista);
         }
 
-        int mitad = listaSinOrdenar.size() / 2;
+        int mitad = lista.size() / 2;
+        List<Estudiante> izquierda = new ArrayList<>(lista.subList(0, mitad));
+        List<Estudiante> derecha = new ArrayList<>(lista.subList(mitad, lista.size()));
 
-        List<Estudiante> izquierda = ordenarMergeSort(listaSinOrdenar.subList(0, mitad), ascendente);
-        List<Estudiante> derecha = ordenarMergeSort(listaSinOrdenar.subList(mitad, listaSinOrdenar.size()), ascendente);
+        izquierda = ordenarMergeSort(izquierda, ascendente);
+        derecha = ordenarMergeSort(derecha, ascendente);
 
         return mezclar(izquierda, derecha, ascendente);
     }
 
     private static List<Estudiante> mezclar(List<Estudiante> izquierda, List<Estudiante> derecha, boolean ascendente) {
-        List<Estudiante> resultado = new ArrayList<>(izquierda.size() + derecha.size());
+        List<Estudiante> resultado = new ArrayList<>();
         int i = 0, j = 0;
 
         while (i < izquierda.size() && j < derecha.size()) {
-            Estudiante leftElem = izquierda.get(i);
-            Estudiante rightElem = derecha.get(j);
+            double indiceIzq = izquierda.get(i).getIndice();
+            double indiceDer = derecha.get(j).getIndice();
 
-            boolean condicion = ascendente ?
-                    leftElem.getIndice() <= rightElem.getIndice() :
-                    leftElem.getIndice() >= rightElem.getIndice();
+            boolean condicion = ascendente ? indiceIzq <= indiceDer : indiceIzq >= indiceDer;
 
             if (condicion) {
-                resultado.add(leftElem);
+                resultado.add(izquierda.get(i));
                 i++;
             } else {
-                resultado.add(rightElem);
+                resultado.add(derecha.get(j));
                 j++;
             }
         }
 
         while (i < izquierda.size()) {
-            resultado.add(izquierda.get(i++));
+            resultado.add(izquierda.get(i));
+            i++;
         }
+
         while (j < derecha.size()) {
-            resultado.add(derecha.get(j++));
+            resultado.add(derecha.get(j));
+            j++;
         }
 
         return resultado;
